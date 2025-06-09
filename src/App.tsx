@@ -12,6 +12,7 @@ import ShowDetails from './pages/ShowDetails';
 import SeatBooking from './pages/SeatBooking';
 import Checkout from './pages/Checkout';
 import Receipt from './pages/Receipt';
+import { AuthProvider } from './contexts/AuthContext';
 
 const theme = createTheme({
   palette: {
@@ -156,55 +157,74 @@ const theme = createTheme({
   },
 });
 
+/**
+ * Main App Component
+ * 
+ * This component sets up the application's routing structure and provides
+ * necessary context providers (Auth, Theme) to all child components.
+ * 
+ * Routing Structure:
+ * - Public Routes: Home, Login, Register, ShowDetails
+ * - Protected Routes: SeatBooking, Checkout, Receipt
+ */
 function App() {
   return (
+    // Theme provider for consistent styling across the app
     <ThemeProvider theme={theme}>
+      {/* Reset CSS and apply base styles */}
       <CssBaseline />
-      <Router>
-        <Toaster
-          position="top-center"
-          toastOptions={{
-            duration: 3000,
-            style: {
-              background: theme.palette.background.paper,
-              color: theme.palette.text.primary,
-              boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-              borderRadius: 8,
-            },
-          }}
-        />
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/show/:id" element={<ShowDetails />} />
-          <Route
-            path="/booking/:id"
-            element={
-              <PrivateRoute>
-                <SeatBooking />
-              </PrivateRoute>
-            }
+      
+      {/* Auth context provider for user authentication state */}
+      <AuthProvider>
+        <Router>
+          <Toaster
+            position="top-center"
+            toastOptions={{
+              duration: 3000,
+              style: {
+                background: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                borderRadius: 8,
+              },
+            }}
           />
-          <Route
-            path="/checkout"
-            element={
-              <PrivateRoute>
-                <Checkout />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/receipt/:bookingId"
-            element={
-              <PrivateRoute>
-                <Receipt />
-              </PrivateRoute>
-            }
-          />
-        </Routes>
-      </Router>
+          <Navbar />
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/show/:id" element={<ShowDetails />} />
+
+            {/* Protected Routes - Require authentication */}
+            <Route
+              path="/booking/:id"
+              element={
+                <PrivateRoute>
+                  <SeatBooking />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/checkout"
+              element={
+                <PrivateRoute>
+                  <Checkout />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/receipt/:bookingId"
+              element={
+                <PrivateRoute>
+                  <Receipt />
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
